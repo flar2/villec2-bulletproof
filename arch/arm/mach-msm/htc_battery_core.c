@@ -532,7 +532,10 @@ static int htc_battery_get_property(struct power_supply *psy,
 		break;
 	case POWER_SUPPLY_PROP_CAPACITY:
 		mutex_lock(&battery_core_info.info_lock);
-		val->intval = battery_core_info.rep.level;
+		if (battery_core_info.htc_charge_full == 0)
+			val->intval = battery_core_info.rep.level;
+		else
+			val->intval = 100;
 		mutex_unlock(&battery_core_info.info_lock);
 		break;
 	case POWER_SUPPLY_PROP_OVERLOAD:
@@ -849,7 +852,7 @@ int htc_battery_core_update_changed(void)
 		battery_core_info.htc_charge_full = 0;
 	else {
 		if (battery_core_info.htc_charge_full &&
-				(battery_core_info.rep.level == 100))
+				(battery_core_info.rep.full_level == 100))
 			battery_core_info.htc_charge_full = 1;
 		else {
 			if (battery_core_info.rep.level == 100)
